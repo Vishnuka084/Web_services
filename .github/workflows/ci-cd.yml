@@ -1,0 +1,40 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Log in to AWS ECR
+        run: |
+          aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin 221082206524.dkr.ecr.eu-north-1.amazonaws.com
+
+      - name: Build and push User service
+        run: |
+          docker build -t user-service ./user-service
+          docker tag transaction-service-repo:latest 221082206524.dkr.ecr.eu-north-1.amazonaws.com/transaction-service-repo:latest
+          docker push 221082206524.dkr.ecr.eu-north-1.amazonaws.com/transaction-service-repo:latest
+
+      - name: Build and push Transaction service
+        run: |
+          docker build -t transaction-service ./transaction-service
+          docker tag transaction-service-repo:latest 221082206524.dkr.ecr.eu-north-1.amazonaws.com/transaction-service-repo:latest
+          docker push 221082206524.dkr.ecr.eu-north-1.amazonaws.com/transaction-service-repo:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Deploy to Elastic Beanstalk
+        run: |
+          # Deploy to Elastic Beanstalk using AWS CLI
+          aws elasticbeanstalk update-environment --environment-name <green-environment-name> --version-label <new-version-label>
