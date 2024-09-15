@@ -20,13 +20,13 @@ jobs:
       - name: Build and push User service
         run: |
           docker build -t user-service ./user-service
-          docker tag transaction-service-repo:latest 221082206524.dkr.ecr.eu-north-1.amazonaws.com/transaction-service-repo:latest
-          docker push 221082206524.dkr.ecr.eu-north-1.amazonaws.com/transaction-service-repo:latest
+          docker tag user-service:latest 221082206524.dkr.ecr.eu-north-1.amazonaws.com/user-service-repo:latest
+          docker push 221082206524.dkr.ecr.eu-north-1.amazonaws.com/user-service-repo:latest
 
       - name: Build and push Transaction service
         run: |
           docker build -t transaction-service ./transaction-service
-          docker tag transaction-service-repo:latest 221082206524.dkr.ecr.eu-north-1.amazonaws.com/transaction-service-repo:latest
+          docker tag transaction-service:latest 221082206524.dkr.ecr.eu-north-1.amazonaws.com/transaction-service-repo:latest
           docker push 221082206524.dkr.ecr.eu-north-1.amazonaws.com/transaction-service-repo:latest
 
   deploy:
@@ -36,5 +36,4 @@ jobs:
     steps:
       - name: Deploy to Elastic Beanstalk
         run: |
-          # Deploy to Elastic Beanstalk using AWS CLI
-          aws elasticbeanstalk update-environment --environment-name <green-environment-name> --version-label <new-version-label>
+          aws elasticbeanstalk update-environment --environment-name transaction-service-green --version-label v1.0.0
